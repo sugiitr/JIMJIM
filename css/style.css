@@ -161,7 +161,7 @@ a {
 
 .profile-bio {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #ffffff;
   line-height: 1.75;
   max-width: 300px;
   letter-spacing: 0.05em;
