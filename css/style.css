@@ -1,0 +1,337 @@
+/* ===========================
+   CSS Variables
+=========================== */
+:root {
+  --bg: #050810;
+  --bg-card: rgba(0, 200, 255, 0.04);
+  --border: rgba(0, 200, 255, 0.14);
+  --border-hover: rgba(0, 200, 255, 0.45);
+  --neon: #00c8ff;
+  --neon-glow: rgba(0, 200, 255, 0.3);
+  --purple: #8b3fff;
+  --orange: #ff6b35;
+  --text: #d4eeff;
+  --text-muted: #3d6070;
+}
+
+/* ===========================
+   Reset & Base
+=========================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  /* Background image with dark overlay + circuit grid on top */
+  background-image:
+    linear-gradient(rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(5, 8, 16, 0.72), rgba(5, 8, 16, 0.72)),
+    url('../images/xMKK4DXV.jpg');
+  background-size: 48px 48px, 48px 48px, cover, cover;
+  background-position: center, center, center, center;
+  background-attachment: fixed, fixed, fixed, fixed;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  padding: 52px 16px 36px;
+  overflow-x: hidden;
+}
+
+/* Ambient center glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: -5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(0, 180, 255, 0.1) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Bottom accent glow */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(139, 63, 255, 0.08) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===========================
+   Layout
+=========================== */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===========================
+   Profile
+=========================== */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+/* Pulsing neon ring */
+.profile-img-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px var(--neon),
+    0 0 18px var(--neon-glow),
+    0 0 48px rgba(0, 200, 255, 0.14);
+  animation: pulse-ring 3.5s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px var(--neon),
+      0 0 18px var(--neon-glow),
+      0 0 48px rgba(0, 200, 255, 0.14);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--neon),
+      0 0 28px rgba(0, 200, 255, 0.55),
+      0 0 72px rgba(0, 200, 255, 0.22);
+  }
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-img-placeholder {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #081520, #0c1e32);
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: var(--neon);
+  filter: drop-shadow(0 0 10px var(--neon));
+}
+
+/* Gradient text name */
+.profile-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  background: linear-gradient(120deg, var(--neon) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 14px rgba(0, 200, 255, 0.35));
+}
+
+.profile-bio {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  max-width: 300px;
+  letter-spacing: 0.05em;
+}
+
+/* ===========================
+   Links
+=========================== */
+.links {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 15px 20px;
+  background: rgba(5, 8, 16, 0.18);
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  overflow: hidden;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+/* Shine sweep on hover */
+.link-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 200, 255, 0.09),
+    transparent
+  );
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+
+.link-card:hover {
+  border-color: var(--neon);
+  background: rgba(0, 200, 255, 0.1);
+  box-shadow:
+    0 0 0 1px var(--neon),
+    0 6px 28px rgba(0, 200, 255, 0.25),
+    0 0 40px rgba(0, 200, 255, 0.1),
+    inset 0 0 20px rgba(0, 200, 255, 0.05);
+  transform: translateY(-3px) scale(1.015);
+}
+
+.link-card:hover::before {
+  left: 140%;
+}
+
+.link-card:active {
+  transform: scale(0.99);
+}
+
+.link-icon {
+  width: 28px;
+  font-size: 1rem;
+  text-align: center;
+  color: var(--neon);
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 5px var(--neon-glow));
+}
+
+.link-label {
+  flex: 1;
+  color: var(--text);
+}
+
+.link-arrow {
+  font-size: 0.62rem;
+  color: rgba(0, 200, 255, 0.28);
+  flex-shrink: 0;
+}
+
+/* ===========================
+   ご支援 — オレンジ系アクセント
+=========================== */
+.link-card--accent {
+  background: rgba(255, 107, 53, 0.08);
+  border-color: rgba(255, 107, 53, 0.28);
+}
+
+.link-card--accent::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 53, 0.1),
+    transparent
+  );
+}
+
+.link-card--accent .link-icon {
+  color: var(--orange);
+  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.55));
+}
+
+.link-card--accent .link-label {
+  color: #ffbfa0;
+}
+
+.link-card--accent .link-arrow {
+  color: rgba(255, 107, 53, 0.38);
+}
+
+.link-card--accent:hover {
+  border-color: var(--orange);
+  background: rgba(255, 107, 53, 0.13);
+  box-shadow:
+    0 0 0 1px var(--orange),
+    0 6px 28px rgba(255, 107, 53, 0.28),
+    0 0 40px rgba(255, 107, 53, 0.12),
+    inset 0 0 20px rgba(255, 107, 53, 0.06);
+  transform: translateY(-3px) scale(1.015);
+}
+
+/* ===========================
+   準備中カード
+=========================== */
+.link-card--coming {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+.link-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 200, 255, 0.4);
+  color: var(--neon);
+  background: rgba(0, 200, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.link-badge--accent {
+  border-color: rgba(255, 107, 53, 0.4);
+  color: var(--orange);
+  background: rgba(255, 107, 53, 0.08);
+}
+
+/* ===========================
+   Footer
+=========================== */
+.footer {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  padding-bottom: 8px;
+  opacity: 0.55;
+}
