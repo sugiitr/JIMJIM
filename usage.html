@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JIMちゃん | Claude 使用状況</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #050810;
+      --bg-card: rgba(0, 200, 255, 0.04);
+      --border: rgba(0, 200, 255, 0.14);
+      --border-hover: rgba(0, 200, 255, 0.45);
+      --neon: #00c8ff;
+      --neon-glow: rgba(0, 200, 255, 0.3);
+      --purple: #8b3fff;
+      --orange: #ff6b35;
+      --green: #00ffaa;
+      --text: #d4eeff;
+      --text-muted: #3d6070;
+      --mono: 'Share Tech Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(rgba(5, 8, 16, 0.72), rgba(5, 8, 16, 0.72)),
+        url('images/xMKK4DXV.jpg');
+      background-size: 48px 48px, 48px 48px, cover, cover;
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+      padding: 52px 16px 48px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -5%; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(0, 180, 255, 0.1) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ---- Header ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: rgba(0, 200, 255, 0.6);
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--neon); }
+
+    .page-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      background: linear-gradient(120deg, var(--neon) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 10px rgba(0, 200, 255, 0.3));
+    }
+
+    .period-badge {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-family: var(--mono);
+      color: var(--neon);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(0, 200, 255, 0.06);
+      letter-spacing: 0.05em;
+    }
+
+    /* ---- Stats grid ---- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: rgba(5, 8, 16, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      backdrop-filter: blur(4px);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .stat-card:hover {
+      border-color: rgba(0, 200, 255, 0.35);
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.08);
+    }
+
+    .stat-card--purple { border-color: rgba(139, 63, 255, 0.25); }
+    .stat-card--purple:hover { border-color: rgba(139, 63, 255, 0.5); box-shadow: 0 0 20px rgba(139, 63, 255, 0.1); }
+    .stat-card--green  { border-color: rgba(0, 255, 170, 0.2); }
+    .stat-card--green:hover  { border-color: rgba(0, 255, 170, 0.45); box-shadow: 0 0 20px rgba(0, 255, 170, 0.08); }
+    .stat-card--orange { border-color: rgba(255, 107, 53, 0.25); }
+    .stat-card--orange:hover { border-color: rgba(255, 107, 53, 0.5); box-shadow: 0 0 20px rgba(255, 107, 53, 0.1); }
+
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 1.5rem;
+      color: var(--neon);
+      letter-spacing: 0.04em;
+      filter: drop-shadow(0 0 8px rgba(0, 200, 255, 0.4));
+    }
+    .stat-card--purple .stat-value { color: var(--purple); filter: drop-shadow(0 0 8px rgba(139, 63, 255, 0.4)); }
+    .stat-card--green  .stat-value { color: var(--green);  filter: drop-shadow(0 0 8px rgba(0, 255, 170, 0.4)); }
+    .stat-card--orange .stat-value { color: var(--orange); filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.4)); }
+
+    .stat-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: var(--mono);
+    }
+
+    /* ---- Chart card ---- */
+    .chart-card {
+      background: rgba(5, 8, 16, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .chart-title {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 12px;
+      background: var(--neon);
+      border-radius: 2px;
+      box-shadow: 0 0 6px var(--neon);
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 180px;
+    }
+
+    /* ---- Donut + legend ---- */
+    .model-layout {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .donut-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      flex-shrink: 0;
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .donut-center-value {
+      font-family: var(--mono);
+      font-size: 1.2rem;
+      color: var(--neon);
+      filter: drop-shadow(0 0 6px var(--neon));
+    }
+    .donut-center-label {
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    .model-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .legend-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-name {
+      font-size: 0.75rem;
+      font-family: var(--mono);
+      color: var(--text);
+      letter-spacing: 0.04em;
+      flex: 1;
+    }
+
+    .legend-pct {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      color: var(--text-muted);
+    }
+
+    .legend-bar-bg {
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .legend-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    /* ---- Footer ---- */
+    .footer {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-align: center;
+      opacity: 0.5;
+      padding-bottom: 8px;
+    }
+
+    /* ---- Scan line animation ---- */
+    @keyframes scan {
+      0%   { top: -10%; }
+      100% { top: 110%; }
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,200,255,0.15), transparent);
+      animation: scan 4s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="page-header">
+      <a href="index.html" class="back-btn">
+        <i class="fa-solid fa-chevron-left"></i> BACK
+      </a>
+      <h1 class="page-title"><i class="fa-solid fa-chart-line"></i>&nbsp; CLAUDE USAGE</h1>
+      <span class="period-badge">2026-03</span>
+    </header>
+
+    <!-- Stats cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Tokens</div>
+        <div class="stat-value" id="val-tokens">0</div>
+        <div class="stat-sub">input + output</div>
+      </div>
+      <div class="stat-card stat-card--purple">
+        <div class="stat-label">Est. Cost</div>
+        <div class="stat-value" id="val-cost">$0</div>
+        <div class="stat-sub">今月累計</div>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-value" id="val-sessions">0</div>
+        <div class="stat-sub">会話数</div>
+      </div>
+      <div class="stat-card stat-card--orange">
+        <div class="stat-label">Top Model</div>
+        <div class="stat-value" style="font-size:1rem; padding-top:4px;">Sonnet</div>
+        <div class="stat-sub">4.6 — 最多使用</div>
+      </div>
+    </div>
+
+    <!-- Daily usage chart -->
+    <div class="chart-card">
+      <div class="chart-title">Daily Token Usage</div>
+      <div class="chart-wrap">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Model breakdown -->
+    <div class="chart-card">
+      <div class="chart-title">Model Breakdown</div>
+      <div class="model-layout">
+        <div class="donut-wrap">
+          <canvas id="donutChart"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value">3</div>
+            <div class="donut-center-label">MODELS</div>
+          </div>
+        </div>
+        <div class="model-legend" id="modelLegend"></div>
+      </div>
+    </div>
+
+    <footer class="footer">&copy; 2026 JIMちゃん — data is sample</footer>
+  </div>
+
+  <script>
+    /* ---- Sample data ---- */
+    const DAILY = {
+      labels: ['3/22', '3/23', '3/24', '3/25', '3/26', '3/27', '3/28'],
+      input:  [82000, 145000, 97000, 210000, 178000, 134000, 89000],
+      output: [18000,  35000, 22000,  54000,  41000,  30000, 21000],
+    };
+
+    const MODELS = [
+      { name: 'Sonnet 4.6', pct: 68, color: '#00c8ff', tokens: '1.87M' },
+      { name: 'Opus 4.6',   pct: 22, color: '#8b3fff', tokens: '0.61M' },
+      { name: 'Haiku 4.5',  pct: 10, color: '#00ffaa', tokens: '0.28M' },
+    ];
+
+    const TOTAL_TOKENS = 2760000;
+    const TOTAL_COST   = 42.80;
+    const TOTAL_SESS   = 94;
+
+    /* ---- Count-up animation ---- */
+    function countUp(id, target, formatter) {
+      const el = document.getElementById(id);
+      const dur = 1200, fps = 60, steps = dur / (1000 / fps);
+      let cur = 0;
+      const inc = target / steps;
+      const t = setInterval(() => {
+        cur = Math.min(cur + inc, target);
+        el.textContent = formatter(Math.floor(cur));
+        if (cur >= target) clearInterval(t);
+      }, 1000 / fps);
+    }
+
+    countUp('val-tokens',   TOTAL_TOKENS, v => (v / 1e6).toFixed(2) + 'M');
+    countUp('val-cost',     TOTAL_COST * 100, v => '$' + (v / 100).toFixed(2));
+    countUp('val-sessions', TOTAL_SESS, v => String(v));
+
+    /* ---- Chart.js shared config ---- */
+    Chart.defaults.color = '#3d6070';
+    Chart.defaults.borderColor = 'rgba(0,200,255,0.07)';
+    Chart.defaults.font.family = "'Share Tech Mono', monospace";
+
+    /* ---- Daily bar chart ---- */
+    new Chart(document.getElementById('dailyChart'), {
+      type: 'bar',
+      data: {
+        labels: DAILY.labels,
+        datasets: [
+          {
+            label: 'Input',
+            data: DAILY.input,
+            backgroundColor: 'rgba(0, 200, 255, 0.25)',
+            borderColor: 'rgba(0, 200, 255, 0.7)',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: 'Output',
+            data: DAILY.output,
+            backgroundColor: 'rgba(139, 63, 255, 0.3)',
+            borderColor: 'rgba(139, 63, 255, 0.75)',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 10, padding: 12, font: { size: 10 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${(ctx.raw / 1000).toFixed(0)}K`,
+            },
+          },
+        },
+        scales: {
+          x: { stacked: true, grid: { color: 'rgba(0,200,255,0.05)' }, ticks: { font: { size: 10 } } },
+          y: {
+            stacked: true,
+            grid: { color: 'rgba(0,200,255,0.05)' },
+            ticks: {
+              font: { size: 10 },
+              callback: v => (v / 1000) + 'K',
+            },
+          },
+        },
+      },
+    });
+
+    /* ---- Donut chart ---- */
+    new Chart(document.getElementById('donutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: MODELS.map(m => m.name),
+        datasets: [{
+          data: MODELS.map(m => m.pct),
+          backgroundColor: MODELS.map(m => m.color + '55'),
+          borderColor: MODELS.map(m => m.color),
+          borderWidth: 2,
+          hoverBackgroundColor: MODELS.map(m => m.color + '88'),
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` },
+          },
+        },
+      },
+    });
+
+    /* ---- Model legend ---- */
+    const legend = document.getElementById('modelLegend');
+    MODELS.forEach(m => {
+      legend.insertAdjacentHTML('beforeend', `
+        <div class="legend-item">
+          <div class="legend-top">
+            <span class="legend-dot" style="background:${m.color}; box-shadow:0 0 6px ${m.color}"></span>
+            <span class="legend-name">${m.name}</span>
+            <span class="legend-pct">${m.pct}%</span>
+          </div>
+          <div class="legend-bar-bg">
+            <div class="legend-bar-fill" style="width:${m.pct}%; background:${m.color}; box-shadow:0 0 4px ${m.color}"></div>
+          </div>
+        </div>
+      `);
+    });
+  </script>
+</body>
+</html>
