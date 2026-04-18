@@ -89,6 +89,12 @@
         <span class="link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
       </a>
 
+      <button type="button" class="link-card link-card--garakuta" onclick="openGarakutaModal()">
+        <span class="link-icon"><i class="fa-solid fa-box-archive"></i></span>
+        <span class="link-label">がらくた倉庫</span>
+        <span class="link-arrow"><i class="fa-solid fa-lock"></i></span>
+      </button>
+
       <a href="https://www.amazon.jp/hz/wishlist/ls/38DGBSL9VZ8E6?ref_=wl_share" class="link-card link-card--accent" target="_blank" rel="noopener">
         <span class="link-icon"><i class="fa-brands fa-amazon"></i></span>
         <span class="link-label">ご支援</span>
@@ -108,5 +114,56 @@
     </footer>
 
   </div>
+
+  <!-- がらくた倉庫 パスワードモーダル -->
+  <div id="garakuta-modal" class="modal-overlay" onclick="closeGarakutaModal(event)">
+    <div class="modal-box">
+      <p class="modal-title"><i class="fa-solid fa-box-archive"></i> がらくた倉庫</p>
+      <p class="modal-desc">パスワードを入力してください</p>
+      <input
+        id="garakuta-input"
+        type="password"
+        class="modal-input"
+        placeholder="password"
+        onkeydown="if(event.key==='Enter') checkGarakutaPassword()"
+        autocomplete="off"
+      >
+      <p id="garakuta-error" class="modal-error"></p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn--cancel" onclick="closeGarakutaModal()">キャンセル</button>
+        <button type="button" class="modal-btn modal-btn--ok" onclick="checkGarakutaPassword()">開く</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openGarakutaModal() {
+      const modal = document.getElementById('garakuta-modal');
+      const input = document.getElementById('garakuta-input');
+      const error = document.getElementById('garakuta-error');
+      input.value = '';
+      error.textContent = '';
+      modal.classList.add('is-open');
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function closeGarakutaModal(e) {
+      if (e && e.target !== document.getElementById('garakuta-modal')) return;
+      document.getElementById('garakuta-modal').classList.remove('is-open');
+    }
+
+    function checkGarakutaPassword() {
+      const input = document.getElementById('garakuta-input');
+      const error = document.getElementById('garakuta-error');
+      if (input.value === 'JIMJIMJIM') {
+        document.getElementById('garakuta-modal').classList.remove('is-open');
+        window.open('https://drive.google.com/drive/folders/1w5NbnKpiRdLwt1q4TigeBmR9JuSi17_i?usp=drive_link', '_blank', 'noopener');
+      } else {
+        error.textContent = 'パスワードが違います';
+        input.value = '';
+        input.focus();
+      }
+    }
+  </script>
 </body>
 </html>
